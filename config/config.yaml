@@ -1,0 +1,11 @@
+AppConfig:
+  # debug 开发模式 ， release 生产模式
+  AppMode: "debug"
+  HttpPort: ":8080"
+
+MysqlConfig:
+  Host: "127.0.0.1"
+  Port: 3306
+  User: "root"
+  Password: "xuan114659"
+  DbName: "ginblog"
