@@ -11,7 +11,7 @@ func main() {
 	//viper 读取
 	utils.Init()
 
-	//引用数据库
+	//连接数据库
 	model.InitDb()
 
 	routes.InitRouter()

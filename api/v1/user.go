@@ -11,10 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	code int
-)
-
 // UserExist 查询用户是否存在
 func UserExist(c *gin.Context) {
 
@@ -32,18 +28,19 @@ func AddUser(c *gin.Context) {
 		return
 	}
 
-	code = model.CheckUser(data.UserName)
+	e := model.CheckUser(data.UserName)
 
 	//fmt.Println(code)
-	if code != errcode.Success.Code() {
+	if e.Code() != errcode.Success.Code() {
 		response.ToErrorResponse(errcode.ErrorUserNameUsed.WithDetails())
 		return
 	}
 
 	model.CreateUser(&data)
 	c.JSON(http.StatusOK, gin.H{
-		"status": code,
-		"data":   data,
+		"status":  e.Code(),
+		"data":    data,
+		"message": e.Msg(),
 	})
 
 	return
@@ -72,10 +69,39 @@ func GetUsers(c *gin.Context) {
 
 // EditUser 编辑用户
 func EditUser(c *gin.Context) {
+	var data model.User
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	response := app.NewResponse(c)
+	valid, err := app.BindAndValid(c, &data)
+	if !valid {
+		fmt.Println("app.BindAndValid failed , err:", err)
+		response.ToErrorResponse(errcode.ServerError.WithDetails(err.Errors()...))
+		return
+	}
+
+	err1 := model.CheckUser(data.UserName)
+
+	if err1.Code() != errcode.Success.Code() {
+		response.ToErrorResponse(errcode.ErrorUserNameUsed.WithDetails())
+		return
+	}
+
+	err2 := model.EditUser(id, &data)
+
+	c.JSON(200, gin.H{
+		"status":  err2.Code(),
+		"message": err2.Msg(),
+	})
 
 }
 
 // DeleteUser 删除用户
 func DeleteUser(c *gin.Context) {
-
+	id, _ := strconv.Atoi(c.Param("id"))
+	e := model.DeleteUser(id)
+	c.JSON(200, gin.H{
+		"status":  e.Code(),
+		"message": e.Msg(),
+	})
 }

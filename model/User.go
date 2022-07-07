@@ -18,24 +18,24 @@ type User struct {
 }
 
 // CheckUser 查询用户是否存在
-func CheckUser(name string) (code int) {
+func CheckUser(name string) *errcode.Error {
 	var users User
 	db.Select("id").Where("user_name = ?", name).First(&users)
 	//大于0  用户已存在 返回状态码
 	if users.ID > 0 {
-		return errcode.ErrorUserNameUsed.Code()
+		return errcode.ErrorUserNameUsed
 	}
-	return errcode.Success.Code()
+	return errcode.Success
 }
 
 // CreateUser 新增用户
-func CreateUser(data *User) (code int) {
-	data.Password = ScryptPw(data.Password)
+func CreateUser(data *User) *errcode.Error {
+	//data.Password = ScryptPw(data.Password)
 	err := db.Create(data).Error
 	if err != nil {
-		return errcode.ServerError.Code() // 500
+		return errcode.ServerError // 500
 	}
-	return errcode.Success.Code()
+	return errcode.Success
 }
 
 // GetUsers 查询用户列表
@@ -48,7 +48,28 @@ func GetUsers(pageSize, pageNum int) []User {
 	return users
 }
 
-// 编辑用户
+// EditUser 编辑用户信息
+func EditUser(id int, data *User) *errcode.Error {
+	var user User
+	var maps = make(map[string]any)
+	maps["user_name"] = data.UserName
+	maps["password"] = data.Password
+	err = db.Model(&user).Where("id = ?", id).Updates(maps).Error
+	if err != nil {
+		return errcode.ServerError
+	}
+	return errcode.Success
+}
+
+// DeleteUser 删除用户
+func DeleteUser(id int) *errcode.Error {
+	var user User
+	err = db.Where("id = ?", id).Delete(&user).Error
+	if err != nil {
+		return errcode.ServerError
+	}
+	return errcode.Success
+}
 
 // ScryptPw 加密
 func ScryptPw(password string) string {
@@ -62,4 +83,10 @@ func ScryptPw(password string) string {
 	}
 
 	return base64.StdEncoding.EncodeToString(hashPassword)
+}
+
+// BeforeSave gorm 钩子函数
+func (u *User) BeforeSave(*gorm.DB) error {
+	u.Password = ScryptPw(u.Password)
+	return nil
 }
