@@ -9,4 +9,5 @@ var (
 	ErrorTokenExist           = NewError(10000004, "Token不存在")
 	ErrorTokenTimeout         = NewError(10000005, "Token超时")
 	ErrorTokenTypeWrong       = NewError(10000006, "Token格式错误")
+	ErrorCateNameUsed         = NewError(20000001, "该分类已存在")
 )

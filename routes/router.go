@@ -27,7 +27,10 @@ func InitRouter() {
 		apiV1.PUT("/user/:id", v1.EditUser)
 		apiV1.DELETE("/user/:id", v1.DeleteUser)
 		// 分类模块的路由接口
-
+		apiV1.POST("/category/add", v1.AddCategory)
+		apiV1.GET("/categories", v1.GetCategories)
+		apiV1.PUT("/category/:id", v1.EditCategory)
+		apiV1.DELETE("/category/:id", v1.DeleteCategory)
 		// 文章模块的路由接口
 
 	}

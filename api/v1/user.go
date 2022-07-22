@@ -11,11 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// UserExist 查询用户是否存在
-func UserExist(c *gin.Context) {
-
-}
-
 // AddUser 添加用户
 func AddUser(c *gin.Context) {
 	var data model.User
@@ -80,18 +75,18 @@ func EditUser(c *gin.Context) {
 		return
 	}
 
-	err1 := model.CheckUser(data.UserName)
+	e := model.CheckUser(data.UserName)
 
-	if err1.Code() != errcode.Success.Code() {
+	if e.Code() != errcode.Success.Code() {
 		response.ToErrorResponse(errcode.ErrorUserNameUsed.WithDetails())
 		return
 	}
 
-	err2 := model.EditUser(id, &data)
+	e = model.EditUser(id, &data)
 
 	c.JSON(200, gin.H{
-		"status":  err2.Code(),
-		"message": err2.Msg(),
+		"status":  e.Code(),
+		"message": e.Msg(),
 	})
 
 }
